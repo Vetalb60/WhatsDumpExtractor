@@ -24,13 +24,13 @@ from WhatsAppGDExtract import googleDriveExtractor
 from decrypt12 import decryptDataBase
 from whatsapp_xtract import whatsapp_xtract
 from variables import Variables
-from src.mainwindow import Ui_MainWindow
-from src.newdump_dialog import Ui_NewDump_Dialog
-from src.info_dialog import Ui_Info_Dialog
+from mainwindow import Ui_MainWindow
+from newdump_dialog import Ui_NewDump_Dialog
+from info_dialog import Ui_Info_Dialog
 from functools import partial
 from whatsdump import DumpException
 from whatsdump import Communicate
-from src.code_dialog import Ui_Code_Dialog
+from code_dialog import Ui_Code_Dialog
 
 
 class WDE(QtWidgets.QMainWindow,
@@ -148,8 +148,8 @@ class WDE(QtWidgets.QMainWindow,
 
         self.__variables.setHtmlPath(''.join((self.__variables.getdbPath(),'.html')))
 
-        os.replace(self.__variables.getHtmlPath(),os.path.abspath('') + '\\' + self.__variables.getPhone() + '.db.html')
-        self.__variables.setHtmlPath(os.path.abspath('') + '\\' + self.__variables.getPhone() + '.db.html')
+        os.replace(self.__variables.getHtmlPath(),''.join((os.path.abspath(''),'\\',self.__variables.getPhone(),'.db.html')))
+        self.__variables.setHtmlPath(''.join((os.path.abspath('') ,'\\',self.__variables.getPhone(),'.db.html')))
 
         self.signals.loadHtml.emit(self.__variables.getHtmlPath().replace('\\', '/'))
 
@@ -231,7 +231,7 @@ class WDE(QtWidgets.QMainWindow,
             self.statusbar.showMessage('\rloading \\')
             time.sleep(0.1)
 
-        self.statusbar.showMessage('\rDone!     ')
+        self.statusbar.showMessage('\rDone!')
         self.__variables.setLoading(True)
 
 
@@ -353,3 +353,6 @@ def main(argv = None):
     app = QtWidgets.QApplication([])
     WDE()
     sys.exit(app.exec())
+
+if __name__ == "__main__":
+    main()

@@ -228,4 +228,4 @@ def Whatsdump(argv,variables,communicate):
     if not wa_emu.extract_priv_key(dst_path):
         raise DumpException("Could not extract private key!")
 
-    setStatus_inMainWindow(str("[WhatsDump]:Private key extracted in " + os.path.join(dst_path) + "\\key").replace('\\', '/'))
+    setStatus_inMainWindow(str(''.join(("[WhatsDump]:Private key extracted in ",os.path.join(dst_path),"\\key"))).replace('\\', '/'))
