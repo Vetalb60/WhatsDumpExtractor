@@ -1,0 +1,83 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>HTML5</title>
+    
+    <style>
+    article, aside, details, figcaption, figure, footer, header,
+    hgroup, menu, nav, section {
+            display: block;
+        }
+        p {
+            text-indent: 20px
+        }
+    </style>
+</head>
+<body bgcolor="teal" text="#ffffff">
+    <h1> General Information </h1>
+
+    <p>
+        WDE Software (<i>WhatsDumpExtractor</i>) is a set of software modules written in Python, linked to each other to extract the encrypted database WhatsApp from Google Drive, decrypt and provide it to the user.
+    </p>
+    <p>
+        WDE uses android emulator to authorize a user on the WhatsApp server and obtain a key file to decrypt the database. To install android emulator, you must download Android SDK from the official site of Android Studio.<br>
+    </p>
+    At the end of the program, the document generated from the decrypted database will be displayed.<br />
+    An application uses a set of bindings of the graphical framework PyQt5.
+
+    <p></p>
+
+    <h1> Preparation setting </h1>
+
+    <p>
+        Before starting with WDE Software, you must have python 3 installed. * (version 3.8.8 was used at the time of release).<br />
+        It is necessary to download and install Intel Hardware Accelerated Execution Manager (HAXM).<br />
+        HAXM installation packages for Windows can be found on the page of releases GitHub devoted to <a href=https://github.com/intel/haxm/releases>Intel Hardware Accelerated Execution Manager</a>. Running android emulator uses x86-based system image. If uses an image of a system on the basis of ARM,it will work incorrectly.<br />
+    </p>
+    <p>
+        Also must be install jdk-1.8. * .The version above or below,WDE will work incorrectly. At the time of release used "jdk 1.8.0_281".JDK is located <a href="https://gist.github.com/wavezhang/ba8425f24a968ec9b2a8619d7c2d86a6">on the page GitHub Gist</a><br />
+        Make sure that the env variables are ANDROID_HOME,ANDROID_SDK_HOME,ANDROID_AVD_HOME specified correctly.The android-sdk folder should appear after installation in the folder with the project. After creation AVD should appear in the .android folder inside the android-sdk folder.<br />
+    </p>
+    <p>
+        Before dump of WhatsApp,necessary get access of Google account from third-party devices. To do this, needs to login through any browser available Google account and click this link:<a href="https://accounts.google.com/b/0/DisplayUnlockCaptcha">https://accounts.google.com/b/0/DisplayUnlockCaptcha</a>
+    </p>
+
+    <p></p>
+
+    <h1> Getting Started </h1>
+    <p>
+        Menu bar:
+        The SDK menu is required to check for Android SDKs installed and for installation SDK/AVD. Click "Install SDK" to start the installation. After that,wait dialog information window about success install of SDK/AVD.<br>
+    </p>
+    
+    The file menu includes:
+        <p>- open .html document</p>
+        <p>- encryption of .crypt12.Decryption requires an encrypted database, key and path to save the decrypted .db file.</p>
+        <p>- converts the .db file to .html for reading of the database WhatsApp</p>
+  
+    <p>
+        Action "New Dump" starts the key extraction process from the emulator android.First necessary make a presetting. To start the process,enter the <u>phone number</u> (the key of which will be extracted), the <u>Google (Gmail) account</u> on the disk of which the encrypted database and <u>password</u> from this account are stored. After launch, the databases from Google Drive will be downloaded and the android emulator will be launched. Then enter the <u>verifycation code</u> WhatsApp which will be sent via SMS to the specified number. At the end, the decrypted database is displayed for reading.
+    </p>
+
+    <p></p>
+
+    <h1> WDE modules </h1>
+
+    WDE Software includes 5 main modules:<br>
+    <p>- <i><a href="https://github.com/MarcoG3/WhatsDump">whatsdump.py</a><br></i></p>
+    <p>- <i><a href="https://github.com/YuriCosta/WhatsApp-GD-Extractor-Multithread">WhatsAppGDExtract.py</a><br></i></p>
+    <p>- <i><a href="https://github.com/EliteAndroidApps/WhatsApp-Crypt12-Decrypter">decrypt12.py</a><br></i></p>
+    <p>- <i><a href="https://github.com/fingersonfire/Whatsapp-Xtract">whatsapp_xtract.py</a><br></i></p>
+    <p>- <i></i>whatsdumpextractor.py<br></i></p>
+
+    <p></p>
+
+    <h1> Get Help </h1>
+
+    Send questions to gmail: assassin678912@gmail.com<br>
+    <br>
+    Author:<i>Alex Green</i>
+
+    <p></p>
+</body>
