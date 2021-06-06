@@ -21,7 +21,7 @@ from PyQt5 import QtWidgets,QtCore,QtGui
 from PyQt5.QtWebEngineWidgets import QWebEngineView
 from whatsdump import Whatsdump
 from WhatsAppGDExtract import googleDriveExtractor
-from src.decrypt12 import decryptDataBase
+from decrypt12 import decryptDataBase
 from whatsapp_xtract import whatsapp_xtract
 from variables import Variables
 from src.mainwindow import Ui_MainWindow
