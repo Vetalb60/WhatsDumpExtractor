@@ -1,4 +1,5 @@
 androidviewclient==20.0.0b6
+adb==1.3.0
 args==0.1.0
 backports.functools-lru-cache==1.5
 certifi==2018.11.29
@@ -8,8 +9,8 @@ cycler==0.10.0
 idna==2.8
 kiwisolver==1.0.1
 libusb1==1.7
-matplotlib
-numpy
+matplotlib==3.4.1
+numpy==1.20.2
 phonenumbers==8.10.3
 pure-python-adb==0.1.5.dev0
 pyparsing==2.3.1
