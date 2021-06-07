@@ -26,9 +26,11 @@ class CommandType:
 class AndroidSDK:
     AVD_NAME = "WhatsDump"
 
-    def __init__(self, avd_name=None):
+    def __init__(self, avd_name = None, communicate = None,variables = None):
         self._sdk_path = os.path.abspath("android-sdk")
         self._env = self._get_env_vars()
+        self._communicate = communicate
+        self._variables = variables
 
         if avd_name is not None:
             self.AVD_NAME = avd_name
@@ -37,33 +39,37 @@ class AndroidSDK:
         # Update original environment var
         os.environ["ANDROID_HOME"] = self._env["ANDROID_HOME"]
 
+    def setStatus_inMainWindow(self,status):
+        self._variables.setStatusBar(status)
+        self._communicate.setStatusBar.emit()
+
     def install(self):
         # Create android-sdk/ directory and download latest SDK
         if not os.path.exists("android-sdk"):
             try:
                 os.makedirs("android-sdk")
             except OSError:
-                self.logger.error("Could not create android-sdk/ directory")
+                self.setStatus_inMainWindow("Could not create android-sdk/ directory")
                 return False
 
         if not self._download("android-sdk"):
             return False
 
         # Update SDK from sdkmanager
-        self.logger.info("Updating SDK from manager...")
+        self.setStatus_inMainWindow("Updating SDK from manager...")
 
         s0 = self._run_cmd_sdkmanager("--update", show=True)
 
         if s0.returncode != 0:
-            self.logger.error("Could not update SDK Manager")
+            self.setStatus_inMainWindow("Could not update SDK Manager")
             return False
 
         # Accept licenses
-        self.logger.info("Accepting SDK licenses..")
+        self.setStatus_inMainWindow("Accepting SDK licenses..")
         s1 = self._run_cmd_sdkmanager("--licenses", input='yes', show=True)
 
         if s1.returncode != 0:
-            self.logger.error("Could not accept SDK Manager licenses")
+            self.setStatus_inMainWindow("Could not accept SDK Manager licenses")
             return False
 
         # List all packages to check HAXM is supported
@@ -71,7 +77,7 @@ class AndroidSDK:
         s2_out, s2_err = s2.communicate()
 
         if s2.returncode != 0:
-            self.logger.error("Could not list SDK Manager packages")
+            self.setStatus_inMainWindow("Could not list SDK Manager packages")
             return False
 
         # Install required packages
@@ -80,23 +86,23 @@ class AndroidSDK:
         if s2_out and s2_out.find("extras;intel;Hardware_Accelerated_Execution_Manager".encode()) != -1:
             install_args += " extras;intel;Hardware_Accelerated_Execution_Manager"
 
-        self.logger.info("Installing packages from SDK Manager...")
+        self.setStatus_inMainWindow("Installing packages from SDK Manager...")
         s3 = self._run_cmd_sdkmanager(install_args, input='yes', show=True)
 
         if s3.returncode != 0:
-            self.logger.error("Could not install packages from SDK Manager")
+            self.setStatus_inMainWindow("Could not install packages from SDK Manager")
             return False
 
         return self.create_avd()
 
     def create_avd(self):
         # Create AVD
-        self.logger.info("Creating AVD image...")
+        self.setStatus_inMainWindow("Creating AVD image...")
         self._avd_path = ''.join((os.path.normpath(os.getcwd()) + '\\android-sdk\\.android\\avd').split()).replace('\\','/')
         s4 = self._run_cmd_avdmanager("create avd --name %s -k system-images;android-23;google_apis;x86 -g google_apis" % (self.AVD_NAME), input="no\n", show=True)
 
         if s4.returncode != 0:
-            self.logger.error("Could not create %s AVD from AVD Manager", self.AVD_NAME)
+            self.setStatus_inMainWindow(("Could not create %s AVD from AVD Manager" + self.AVD_NAME))
             return False
         return True
 
@@ -148,7 +154,7 @@ class AndroidSDK:
         while not emulator_device:
             if proc.returncode is not None:
                 if proc.returncode != 0:
-                    self.logger.error("Emulator process returned an error")
+                    self.setStatus_inMainWindow("Emulator process returned an error")
                     return False#
 
                 break
@@ -166,7 +172,7 @@ class AndroidSDK:
         while True:
             try:
                 if emulator_device.shell("getprop dev.bootcomplete").rstrip() == "1":
-                    self.logger.debug("Emulator boot process completed")
+                    self.setStatus_inMainWindow("Emulator boot process completed")
                     break
             except RuntimeError:
                 pass
@@ -191,7 +197,7 @@ class AndroidSDK:
             return False
 
         if process.returncode != 0:
-            self.logger.debug("avdmanager list avd command return code: %d", process.returncode)
+            self.logger.debug(("avdmanager list avd command return code: %d", process.returncode))
             return False
 
         for line in process.stdout:
@@ -223,51 +229,57 @@ class AndroidSDK:
                 return True
 
         return False
-#correctde by me
+
+
     def _download(self, extract_dir):
         output_zip = os.path.join(extract_dir, "tools.zip")
         tools_dir = os.path.join(extract_dir, "tools")
 
         if os.path.exists(tools_dir):
-            self.logger.info("SDK tools directory already exists, skipping download & extraction...")
+            self.setStatus_inMainWindow("SDK tools directory already exists, skipping download & extraction...")
             return True
 
         if not os.path.isfile(output_zip):
-            self.logger.info("Downloading and installing Android SDK...")
+            self.setStatus_inMainWindow("Downloading and installing Android SDK...")
 
             # Download
-            r = requests.get("https://web.archive.org/web/20190403122148/https://developer.android.com/studio/")
+            result = requests.get("https://web.archive.org/web/20190403122148/https://developer.android.com/studio/",stream = True)
 
-            if r.status_code != 200:
-                self.logger.error("Failed GET request to developer.android.com")
+
+            if result.status_code != 200:
+                self.setStatus_inMainWindow("Failed GET request to developer.android.com")
                 return False
 
-            sdk_re = re.search(r"https://dl.google.com/android/repository/sdk-tools-" + platform.system().lower() + "-(\d+).zip", r.text)
+            sdk_re = re.search(r"https://dl.google.com/android/repository/sdk-tools-" + platform.system().lower() + "-(\d+).zip", result.text)
 
             if not sdk_re:
-                self.logger.error("Failed regex matching to find latest Android SDK (platform %s)", platform.system())
+                self.setStatus_inMainWindow(("Failed regex matching to find latest Android SDK platform:" + str(platform.system())))
                 return False
 
-            r = requests.get(sdk_re.group(), stream=True)
+            result = requests.get(sdk_re.group(), stream=True)
 
-            self.logger.info("Android SDK url found: %s", sdk_re.group())
+            self.setStatus_inMainWindow(("Android SDK url found:" + str(sdk_re.group())))
 
             with open(output_zip, "wb") as f:
-                total_length = int(r.headers.get("Content-Length"))
-                for chunk in progress.bar(r.iter_content(chunk_size=1024), expected_size=(total_length / 1024) + 1):
+                total_length = int(result.headers.get("Content-Length"))
+                dl = 0
+                for chunk in progress.bar(result.iter_content(chunk_size=1024), expected_size=(total_length / 1024) + 1):
                     if chunk:
+                        dl += len(chunk)
                         f.write(chunk)
+                        done = int(50 * dl / total_length)
+                        self.setStatus_inMainWindow("Downloading,wait:" + str(done)+'% ' + "\r[%s%s]" % ('=' * done, ' ' * (50 - done)))
                         f.flush()
 
-            self.logger.info("Extracting...")
+            self.setStatus_inMainWindow("Extracting...")
         else:
-            self.logger.info("Android Tools already downloaded, extracting...")
+            self.setStatus_inMainWindow("Android Tools already downloaded, extracting...")
 
         # Extraction
         z = zipfile.ZipFile(output_zip)
         z.extractall(extract_dir)
 
-        self.logger.info("Android SDK successfully extracted in android-sdk/")
+        self.setStatus_inMainWindow("Android SDK successfully extracted in android-sdk/")
 
         return True
 

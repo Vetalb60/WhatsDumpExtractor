@@ -58,7 +58,7 @@ def check_sdk(sdk):
 def Whatsdump(argv,variables,communicate):
     phone         = None
     source_device = None
-    sdk           = AndroidSDK()
+    sdk           = AndroidSDK(variables=variables,communicate=communicate)
 
     def setStatus_inMainWindow(status):
         variables.setStatusBar(status)

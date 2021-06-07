@@ -62,7 +62,7 @@ class WDE(QtWidgets.QMainWindow,
         self.actionExit.triggered.connect(self.close)
         self.actionExit.triggered.connect(self.deleteLater)
         self.actionInstall_SDK.triggered.connect(partial(self.functions_in_thread,self.install_sdk))
-        self.actionInstall_SDK.triggered.connect(self.animate_in_thread)
+        #self.actionInstall_SDK.triggered.connect(self.animate_in_thread)
         self.actionHelp.triggered.connect(partial(self.loadWebView,self.__variables.getHelpDocument()))
         self.actionAbout.triggered.connect(partial(self.setInfoText,__ABOUT_DESCRIPTION__))
         self.__newDump.button_ok.clicked.connect(partial(self.functions_in_thread,self.whatsdump_run))
@@ -347,6 +347,7 @@ class Signals(QtCore.QObject,
     showInfoDialog = QtCore.pyqtSignal(str)
     start_animate = QtCore.pyqtSignal()
     end_animate = QtCore.pyqtSignal()
+    progress_bar = QtCore.pyqtSignal(str)
 
 
 def main(argv = None):
