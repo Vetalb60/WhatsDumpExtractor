@@ -66,7 +66,7 @@ class AndroidSDK:
 
         # Accept licenses
         self.setStatus_inMainWindow("Accepting SDK licenses..")
-        s1 = self._run_cmd_sdkmanager("--licenses", input='yes', show=True)
+        s1 = self._run_cmd_sdkmanager("--licenses", input = 'yes', show=True)
 
         if s1.returncode != 0:
             self.setStatus_inMainWindow("Could not accept SDK Manager licenses")
@@ -341,16 +341,26 @@ class AndroidSDK:
         # Run process
         proc = subprocess.Popen(
             args,
-            env=self._env,
-            cwd=self._sdk_path,
-            stdin=subprocess.PIPE if input else None,
-            stdout=None if show else subprocess.PIPE,
-            stderr=None if show else subprocess.PIPE,
+            env      = self._env,
+            cwd      = self._sdk_path,
+            stdin    = subprocess.PIPE,
+            stdout   = subprocess.PIPE,
+            stderr   = subprocess.STDOUT,
+            encoding = None if args[1] == '--licenses' else 'utf-8'
         )
 
+        # Program cannot decode a line from STDOUT.
+        # The status bar not show progress accepting licenses.
         if input:
-            proc.stdin.write(input.encode())
+            if args[1] == '--licenses':
+                proc.stdin.write(input.encode())
+            else:
+                proc.stdin.write(input)
             proc.stdin.close()
+
+        for line in proc.stdout:
+            if line[0] == '[':
+                self.setStatus_inMainWindow(line)
 
         if wait:
             proc.wait()
