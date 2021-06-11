@@ -10,6 +10,9 @@ import zipfile
 
 from clint.textui import progress
 
+__RETURN_CODE__ = -1
+__COMMUNICATE__ = -2
+
 logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(name)s - [%(funcName)s]: %(message)s",
     datefmt="%d/%m/%Y %H:%M:%S",
@@ -60,7 +63,7 @@ class AndroidSDK:
 
         s0 = self._run_cmd_sdkmanager("--update", show=True)
 
-        if s0.returncode != 0:
+        if s0[__RETURN_CODE__] != 0:
             self.setStatus_inMainWindow("Could not update SDK Manager")
             return False
 
@@ -68,15 +71,15 @@ class AndroidSDK:
         self.setStatus_inMainWindow("Accepting SDK licenses..")
         s1 = self._run_cmd_sdkmanager("--licenses", input = 'yes', show=True)
 
-        if s1.returncode != 0:
+        if s1[__RETURN_CODE__] != 0:
             self.setStatus_inMainWindow("Could not accept SDK Manager licenses")
             return False
 
         # List all packages to check HAXM is supported
         s2 = self._run_cmd_sdkmanager("--list", wait=False)
-        s2_out, s2_err = s2.communicate()
+        s2_out, s2_err = s2[__COMMUNICATE__]
 
-        if s2.returncode != 0:
+        if s2[__RETURN_CODE__] != 0:
             self.setStatus_inMainWindow("Could not list SDK Manager packages")
             return False
 
@@ -89,7 +92,7 @@ class AndroidSDK:
         self.setStatus_inMainWindow("Installing packages from SDK Manager...")
         s3 = self._run_cmd_sdkmanager(install_args, input='yes', show=True)
 
-        if s3.returncode != 0:
+        if s3[__RETURN_CODE__] != 0:
             self.setStatus_inMainWindow("Could not install packages from SDK Manager")
             return False
 
@@ -101,7 +104,7 @@ class AndroidSDK:
         self._avd_path = ''.join((os.path.normpath(os.getcwd()) + '\\android-sdk\\.android\\avd').split()).replace('\\','/')
         s4 = self._run_cmd_avdmanager("create avd --name %s -k system-images;android-23;google_apis;x86 -g google_apis" % (self.AVD_NAME), input="no\n", show=True)
 
-        if s4.returncode != 0:
+        if s4[__RETURN_CODE__] != 0:
             self.setStatus_inMainWindow(("Could not create AVD from AVD Manager"))
             return False
         return True
@@ -152,8 +155,8 @@ class AndroidSDK:
 
         # Check if any emulator connects to ADB
         while not emulator_device:
-            if proc.returncode is not None:
-                if proc.returncode != 0:
+            if proc[__RETURN_CODE__] is not None:
+                if proc[__RETURN_CODE__] != 0:
                     self.setStatus_inMainWindow("Emulator process returned an error")
                     return False#
 
@@ -186,7 +189,7 @@ class AndroidSDK:
 
         for device in devices:
             if device.serial.find("emulator") != -1:
-                return self._run_cmd_adb("-s %s emu kill" % device.serial).returncode == 0
+                return self._run_cmd_adb("-s %s emu kill" % device.serial)[__RETURN_CODE__] == 0
 
         return False
 
@@ -196,12 +199,12 @@ class AndroidSDK:
         except Exception:
             return False
 
-        if process.returncode != 0:
+        if process[__RETURN_CODE__] != 0:
             self.logger.debug(("avdmanager list avd command return code: %d", process.returncode))
             return False
 
-        for line in process.stdout:
-            if line.find(self.AVD_NAME) != -1:
+        for i in range(len(process) - 2):
+            if process[i].find(self.AVD_NAME) != -1:
                 return True
 
         return False
@@ -212,7 +215,7 @@ class AndroidSDK:
         except Exception:
             return False
 
-        if process.returncode != 0:
+        if process[__RETURN_CODE__] != 0:
             self.logger.debug("avdmanager delete avd -n {} command return code: {}".format(self.AVD_NAME, process.returncode))
             return False
 
@@ -224,8 +227,8 @@ class AndroidSDK:
         AVD 'WhatsDump3' deleted.
         """
 
-        for line in process.stdout:
-            if line.find("deleted".encode()) != -1:
+        for i in range(len(process) - 2):
+            if process[i].find('deleted') != -1:
                 return True
 
         return False
@@ -358,18 +361,22 @@ class AndroidSDK:
                 proc.stdin.write(input)
             proc.stdin.close()
 
-        # When iterating again, the proc is not read
+        # proc.stdout -> string array
 
-        if args[1] != 'list':
-            for line in proc.stdout:
-                if line[0] == '[':
-                    self.setStatus_inMainWindow(line)
-                proc.stdout.close()
+        output = []
+
+        for line in proc.stdout:
+            output.append(line)
+            if line[0] == '[':
+                self.setStatus_inMainWindow(line)
+
+        output.append(proc.communicate()) # __COMMUNICATE__
+        output.append(proc.returncode) # __RETURN_CODE__
 
         if wait:
             proc.wait()
 
-        return proc
+        return output
 
     def _set_executable(self, bin_path):
         bin_path = os.path.join(self._sdk_path, bin_path)
