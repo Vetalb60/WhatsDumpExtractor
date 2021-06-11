@@ -102,7 +102,7 @@ class AndroidSDK:
         s4 = self._run_cmd_avdmanager("create avd --name %s -k system-images;android-23;google_apis;x86 -g google_apis" % (self.AVD_NAME), input="no\n", show=True)
 
         if s4.returncode != 0:
-            self.setStatus_inMainWindow(("Could not create %s AVD from AVD Manager" + self.AVD_NAME))
+            self.setStatus_inMainWindow(("Could not create AVD from AVD Manager"))
             return False
         return True
 
@@ -201,7 +201,7 @@ class AndroidSDK:
             return False
 
         for line in process.stdout:
-            if line.find(self.AVD_NAME.encode()) != -1:
+            if line.find(self.AVD_NAME) != -1:
                 return True
 
         return False
@@ -268,7 +268,7 @@ class AndroidSDK:
                         dl += len(chunk)
                         f.write(chunk)
                         done = int(50 * dl / total_length)
-                        self.setStatus_inMainWindow("Downloading,wait:" + str(done)+'% ' + "\r[%s%s]" % ('=' * done, ' ' * (50 - done)))
+                        self.setStatus_inMainWindow("Downloading,wait:" + str(2 * done)+'% ' + "\r[%s%s]" % ('=' * int(done / 5), ' ' * (50 - int(done / 5))))
                         f.flush()
 
             self.setStatus_inMainWindow("Extracting...")
@@ -343,13 +343,13 @@ class AndroidSDK:
             args,
             env      = self._env,
             cwd      = self._sdk_path,
-            stdin    = subprocess.PIPE,
-            stdout   = subprocess.PIPE,
-            stderr   = subprocess.STDOUT,
+            stdin = subprocess.PIPE if input else None,
+            stdout = subprocess.PIPE,
+            stderr = None if show else subprocess.PIPE,
             encoding = None if args[1] == '--licenses' else 'utf-8'
         )
 
-        # Program cannot decode a line from STDOUT.
+        # Program cannot decode a line from STDOUT in accepting licenses.
         # The status bar not show progress accepting licenses.
         if input:
             if args[1] == '--licenses':
@@ -358,9 +358,13 @@ class AndroidSDK:
                 proc.stdin.write(input)
             proc.stdin.close()
 
-        for line in proc.stdout:
-            if line[0] == '[':
-                self.setStatus_inMainWindow(line)
+        # When iterating again, the proc is not read
+
+        if args[1] != 'list':
+            for line in proc.stdout:
+                if line[0] == '[':
+                    self.setStatus_inMainWindow(line)
+                proc.stdout.close()
 
         if wait:
             proc.wait()
