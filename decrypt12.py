@@ -15,7 +15,6 @@ from Crypto.Cipher import AES
 import os
 import sys
 import zlib
-import logging
 
 def keyfile(kf):
     global t1, key
@@ -61,7 +60,7 @@ def primer(tf, crypt12, sb):
         footer.truncate()
         footer.close()
 
-def validate(ms):
+def validate(ms) -> object:
     with open(ms, 'rb') as msgstore:
         if msgstore.read(6).decode('ascii').lower() != 'sqlite':
             os.remove(ms)
@@ -75,6 +74,3 @@ def decryptDataBase(key_path,crypt_db_path,dst_path):
     if keyfile(key_path) and decrypt12(crypt_db_path, dst_path):
         msg = validate(dst_path)
         return msg
-
-
-

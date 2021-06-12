@@ -23,13 +23,13 @@ from WhatsAppGDExtract import googleDriveExtractor
 from decrypt12 import decryptDataBase
 from whatsapp_xtract import whatsapp_xtract
 from variables import Variables
-from src.mainwindow import Ui_MainWindow
-from src.newdump_dialog import Ui_NewDump_Dialog
-from src.info_dialog import Ui_Info_Dialog
 from functools import partial
 from whatsdump import DumpException
 from whatsdump import Communicate
+from src.mainwindow import Ui_MainWindow
+from src.newdump_dialog import Ui_NewDump_Dialog
 from src.code_dialog import Ui_Code_Dialog
+from src.info_dialog import Ui_Info_Dialog
 
 
 class WDE(QtWidgets.QMainWindow,

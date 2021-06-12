@@ -372,8 +372,6 @@ class WhatsApp:
             for _id in ids:
                 view = self.vc.findViewById(_id)
                 if view:
-                    # if self.logger.level == logging.DEBUG:
-                    # self.vc.traverse()
                     return view
 
             time.sleep(frequency)  # Check every X seconds

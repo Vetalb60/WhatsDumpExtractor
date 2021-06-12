@@ -46,7 +46,7 @@ class Chatsession:
             self.contact_msg_count = "N/A"
         else:
             self.contact_msg_count = contactmsgcount
-            
+
         # contact unread msg
         if contactunread == "" or contactunread is None:
             self.contact_unread_msg = "N/A"
