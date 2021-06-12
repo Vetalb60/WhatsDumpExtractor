@@ -3,21 +3,11 @@ import os
 import stat
 import platform
 import time
-import logging
 import re
 import requests
 import zipfile
 
 from clint.textui import progress
-
-__RETURN_CODE__ = -1
-__COMMUNICATE__ = -2
-
-logging.basicConfig(
-    format="%(asctime)s - %(levelname)s - %(name)s - [%(funcName)s]: %(message)s",
-    datefmt="%d/%m/%Y %H:%M:%S",
-    level=logging.INFO,
-)
 
 class CommandType:
     PLATFORM_TOOLS = 1
@@ -27,7 +17,9 @@ class CommandType:
 
 
 class AndroidSDK:
-    AVD_NAME = "WhatsDump"
+    __AVD_NAME__ = "WhatsDump"
+    __RETURN_CODE__ = -1
+    __COMMUNICATE__ = -2
 
     def __init__(self, avd_name = None, communicate = None,variables = None):
         self._sdk_path = os.path.abspath("android-sdk")
@@ -37,7 +29,6 @@ class AndroidSDK:
 
         if avd_name is not None:
             self.AVD_NAME = avd_name
-        self.logger = logging.getLogger("{} - AndroidSDK".format(self.AVD_NAME))
 
         # Update original environment var
         os.environ["ANDROID_HOME"] = self._env["ANDROID_HOME"]
@@ -200,7 +191,7 @@ class AndroidSDK:
             return False
 
         if process[__RETURN_CODE__] != 0:
-            self.logger.debug(("avdmanager list avd command return code: %d", process.returncode))
+            self.setStatus_inMainWindow(("avdmanager list avd command return code:" + process[__RETURN_CODE__]))
             return False
 
         for i in range(len(process) - 2):
@@ -216,16 +207,8 @@ class AndroidSDK:
             return False
 
         if process[__RETURN_CODE__] != 0:
-            self.logger.debug("avdmanager delete avd -n {} command return code: {}".format(self.AVD_NAME, process.returncode))
+            self.setStatus_inMainWindow("avdmanager delete avd command return code: {}" + process[__RETURN_CODE__])
             return False
-
-        """
-         ./avdmanager delete avd -n WhatsDump3
-        Deleting file /home/alessandro/.android/avd/WhatsDump3.ini
-        Deleting folder /home/alessandro/.android/avd/WhatsDump3.avd
-
-        AVD 'WhatsDump3' deleted.
-        """
 
         for i in range(len(process) - 2):
             if process[i].find('deleted') != -1:
@@ -270,8 +253,8 @@ class AndroidSDK:
                     if chunk:
                         dl += len(chunk)
                         f.write(chunk)
-                        done = int(50 * dl / total_length)
-                        self.setStatus_inMainWindow("Downloading,wait:" + str(2 * done)+'% ' + "\r[%s%s]" % ('=' * int(done / 5), ' ' * (50 - int(done / 5))))
+                        done = int(100 * dl / total_length)
+                        self.setStatus_inMainWindow("Downloading,wait:" + str(done)+'% ' + "\r[%s%s]" % ('=' * int(done/2), ' ' * (100 - int(done / 2))))
                         f.flush()
 
             self.setStatus_inMainWindow("Extracting...")
@@ -309,7 +292,6 @@ class AndroidSDK:
     """
 
     def _run_cmd_emulator(self, args, wait=True, input=None, show=False):
-        # return self._run_cmd(CommandType.TOOLS, 'emulator', args, wait, input, show)
         return self._run_cmd(CommandType.EMULATOR, "emulator", args, wait, input, show)
 
     def _run_cmd_adb(self, args, wait=True, input=None, show=False):
@@ -346,9 +328,9 @@ class AndroidSDK:
             args,
             env      = self._env,
             cwd      = self._sdk_path,
-            stdin = subprocess.PIPE if input else None,
-            stdout = subprocess.PIPE,
-            stderr = None if show else subprocess.PIPE,
+            stdin    = subprocess.PIPE if input else None,
+            stdout   = subprocess.PIPE,
+            stderr   = None if show else subprocess.PIPE,
             encoding = None if args[1] == '--licenses' else 'utf-8'
         )
 
@@ -362,12 +344,11 @@ class AndroidSDK:
             proc.stdin.close()
 
         # proc.stdout -> string array
-
         output = []
 
         for line in proc.stdout:
             output.append(line)
-            if line[0] == '[':
+            if line.find('['):
                 self.setStatus_inMainWindow(line)
 
         output.append(proc.communicate()) # __COMMUNICATE__
@@ -392,9 +373,3 @@ class AndroidSDK:
         new_env["ANDROID_SDK_ROOT"] = self._sdk_path
         new_env["ANDROID_AVD_HOME"] = os.path.join(self._sdk_path, ".android/avd/")
         return new_env
-
-
-
-if __name__ == "__main__":
-    sdk = AndroidSDK()
-    sdk.install()

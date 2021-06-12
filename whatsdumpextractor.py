@@ -4,7 +4,7 @@
 
 =========whatsdumpextractor.py=========
 
-Version 1.0(beta)
+Version 1.0.1
 
 Copyright © 2021 by Alex Green.All rights reserved.
 
@@ -16,7 +16,6 @@ import sys
 import os
 import time
 
-from data.about import __ABOUT_DESCRIPTION__
 from PyQt5 import QtWidgets,QtCore,QtGui
 from PyQt5.QtWebEngineWidgets import QWebEngineView
 from whatsdump import Whatsdump
@@ -354,5 +353,12 @@ def main(argv = None):
     WDE()
     sys.exit(app.exec())
 
-if __name__ == "__main__":
-    main()
+__ABOUT_DESCRIPTION__ =\
+"""
+Version 1.0.1
+
+Copyright © 2021 by Alex Green.
+All rights reserved.
+
+WDE is Open Source Software released under the GNU General Public License.
+"""
