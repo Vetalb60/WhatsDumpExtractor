@@ -8,7 +8,7 @@ To write a UI application with a set of bindings of the graphical framework PyQt
   Before starting with WDE Software, you must have python 3 installed. * (version 3.8.8 was used at the time of release).
 It is necessary to download and install Intel Hardware Accelerated Execution Manager (HAXM). HAXM installation packages for Windows can be found on the page of releases GitHub devoted to <a href= https://github.com/intel/haxm/releases>Intel Hardware Accelerated Execution Manager</a>. Running android emulator uses x86-based system image. If uses an image of a system on the basis of ARM,it will work incorrectly. 
   Also must be install jdk-1.8. * .The version above or below,WDE will work incorrectly. At the time of release used "jdk 1.8.0_281".JDK is located <a href="https://gist.github.com/wavezhang/ba8425f24a968ec9b2a8619d7c2d86a6">on the page GitHub Gist</a>
-  Make sure that the env variables are ANDROID_HOME,ANDROID_SDK_HOME,ANDROID_AVD_HOME specified correctly.The android-sdk folder should appear after installation in the folder with the project. After creation AVD should appear in the .android folder inside the android-sdk folder.
+  Make sure that the env variables(ANDROID_HOME,ANDROID_SDK_HOME,ANDROID_AVD_HOME) specified correctly.The android-sdk folder should appear after installation in the folder with the project. After creation AVD should appear in the .android folder inside the android-sdk folder.
   Before dump of WhatsApp,necessary get access of Google account from third-party devices. To do this, needs to login through any browser available Google account and click this link: https://accounts.google.com/b/0/DisplayUnlockCaptcha.
 
 ### Getting Started
