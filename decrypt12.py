@@ -60,7 +60,7 @@ def primer(tf, crypt12, sb):
         footer.truncate()
         footer.close()
 
-def validate(ms) -> object:
+def validate(ms):
     with open(ms, 'rb') as msgstore:
         if msgstore.read(6).decode('ascii').lower() != 'sqlite':
             os.remove(ms)
