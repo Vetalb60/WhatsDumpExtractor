@@ -34,6 +34,6 @@ WDE Software includes 5 main modules:
 
 
 ### Get Help
-  Send questions to gmail: assassin678912@gmail.com
+  Send questions to gmail: al9xgr99n@gmail.com
 
 Author:Alex Green
